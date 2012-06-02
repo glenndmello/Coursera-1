@@ -32,6 +32,10 @@ h1.title {
   font-size: 2em;
   font-style: normal;
 }
+h1.title a {
+  color: white;
+  text-decoration: none;
+}
 table#movies {
   margin: 10px;
   border-collapse: collapse;
