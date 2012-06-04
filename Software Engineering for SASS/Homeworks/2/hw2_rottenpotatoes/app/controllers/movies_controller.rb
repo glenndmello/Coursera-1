@@ -3,11 +3,26 @@ class MoviesController < ApplicationController
   def show
     id = params[:id] # retrieve movie ID from URI route
     @movie = Movie.find(id) # look up movie by unique ID
-    # will render app/views/movies/show.<extension> by default
   end
 
   def index
-    @movies = Movie.order params[:sort]
+    @all_ratings = Movie.ratings
+
+    @sort = params[:sort] || session[:sort]
+    @ratings = params[:ratings] || session[:ratings] || {}
+
+    if params[:sort] != session[:sort]
+      session[:sort] = @sort
+      redirect_to :sort => @sort, :ratings => @ratings and return
+    end
+
+    if params[:ratings] != session[:ratings] and @ratings != {}
+      session[:sort] = @sort
+      session[:ratings] = @ratings
+      redirect_to :sort => @sort, :ratings => @ratings and return
+    end
+
+    @movies = Movie.where(:rating => @ratings.keys).order(@sort)
   end
 
   def new
@@ -32,7 +47,7 @@ class MoviesController < ApplicationController
   end
 
   def destroy
-    @movie = Movie.find params[:id]
+    @movie = Movie.find(params[:id])
     @movie.destroy
     flash[:notice] = "Movie '#{@movie.title}' deleted."
     redirect_to movies_path
